@@ -1,0 +1,64 @@
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System;
+
+
+public class MapShop : MonoBehaviour
+{
+    public bool isMapUnlocked;
+    public int skinPrice;
+    public string sceneToLoad;
+
+    public TextMeshProUGUI buttonText;
+
+
+    private void Start()
+    {
+
+
+        var mapData = PlayerPrefs.GetInt("SavedMap" + sceneToLoad);
+        isMapUnlocked = Convert.ToBoolean(mapData);
+        {
+            
+            if (isMapUnlocked)
+
+
+            {
+                buttonText.text = "Enter";
+            }
+
+        }
+        Debug.Log(mapData);
+    }
+
+    public void OnButtonPress()
+    {
+        if (isMapUnlocked == true)
+        {
+            SceneManager.LoadScene(sceneToLoad);
+        }
+        else
+        {
+
+            //buy
+            if (FindObjectOfType<GoldSkin>().TryRemoveGold(skinPrice))
+            {
+                isMapUnlocked = true;
+
+
+                {
+                    PlayerPrefs.SetInt("SavedMap" + sceneToLoad, isMapUnlocked ? 1 : 0);
+                    {
+                        buttonText.text = "Enter";
+                        PlayerPrefs.Save();
+                        Debug.Log(isMapUnlocked);
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+
