@@ -1,0 +1,106 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using UnityEngine.SceneManagement;
+
+public class PlayerController : MonoBehaviour
+{
+
+    public float speed;
+    public Text countText;
+    public Text goldText;
+    public MeshRenderer playerSR;
+    public string sceneToLoad;
+    public GameObject CompleteLevelUi;
+    
+
+    private Rigidbody rb;
+    private int count;
+    private int gold;
+    private MeshRenderer rend;
+    private float timer = 0;
+
+
+    void Start()
+    {
+        Application.targetFrameRate = 58;
+        rb = GetComponent<Rigidbody>();
+        count = 0;
+        SetCountText();
+        gold = PlayerPrefs.GetInt("gold");
+        SetGoldText();
+        playerSR.material = SkinChange.equippedSkin;
+        rend = GetComponent<MeshRenderer>();
+        if (rend != null)
+        {
+            rend.material = playerSR.material;
+            Debug.Log("NOPE");
+        }
+    }
+
+
+    void FixedUpdate()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+
+        rb.AddForce(movement * speed);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Pick Up"))
+        {
+            other.gameObject.SetActive(false);
+            count = count + 1;
+            SetCountText();
+        }
+
+        if (other.gameObject.CompareTag("Gold"))
+        {
+            other.gameObject.SetActive(false);
+            gold = gold + 1;
+            SetGoldText();
+        }
+
+        if (other.gameObject.tag == "Reset")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
+
+    void SetCountText()
+    {
+        countText.text = "Count: " + count.ToString();
+
+    }
+
+    void SetGoldText()
+    {
+        {
+            goldText.text = "Gold: " + gold.ToString();
+        }
+    }
+
+    void Update()
+    {
+        if (count >= 3)
+        {
+            PlayerPrefs.SetInt("gold", gold);
+            PlayerPrefs.Save();
+            {
+
+                CompleteLevelUi.SetActive(true);
+                timer += Time.deltaTime;
+                if (timer >= 2)
+
+                {
+                    SceneManager.LoadScene("Multiple Menu Scene");
+                }
+            }
+        }
+
+    }
+}
